@@ -1,0 +1,45 @@
+##  Структура проєкту
+
+photo_gallery/
+├─ app/               # Django-проєкт (налаштування, wsgi, urls)
+│ ├─ settings.py      # головні налаштування (БД, DRF, JWT, статика, медіа тощо)
+│ ├─ urls.py          # глобальні маршрути (підключення admin/ та api/)
+│ └─ ...
+├─ gallery/           # головний застосунок (бізнес-логіка)
+│ ├─ migrations/      # автоматично згенеровані файли міграцій БД
+│ ├─ models.py        # моделі (User, Photo, Category, Like, Comment)
+│ ├─ serializers.py   # DRF-серіалізатори для моделей
+│ ├─ views.py         # API-представлення (View, ViewSet)
+│ ├─ permissions.py   # кастомні права доступу
+│ ├─ urls.py          # маршрути конкретно для API (auth/, categories/, photos/ тощо)
+│ └─ admin.py         # налаштування Django admin
+├─ Dockerfile         # інструкція для створення Docker-образу
+├─ docker-compose.yml # опис сервісів (web + db), мережі та змінних середовища
+├─ requirements.txt   # залежності Python (Django, DRF, JWT, Pillow, psycopg2…)
+├─ entrypoint.sh      # стартовий скрипт для контейнера
+└─ manage.py          # CLI-утиліта Django для міграцій, запуску серверу тощо
+
+
+## Таблиця API ендпоінтів
+
+| Категорія           | Метод | URL                                  | Опис                                  | Доступ |
+|---------------------|-------|--------------------------------------|---------------------------------------|--------|
+| **Аутентифікація**  | POST  | `/api/auth/register/`                | Реєстрація нового користувача         | Всі    |
+|                     | POST  | `/api/auth/token/`                   | Отримати JWT токен                    | Всі    |
+|                     | POST  | `/api/auth/token/refresh/`           | Оновити токен                         | Всі    |
+| **Категорії**       | GET   | `/api/categories/`                   | Список категорій                      | Всі    |
+|                     | POST  | `/api/categories/`                   | Створити категорію                    | Admin  |
+|                     | GET   | `/api/categories/{id}/`              | Перегляд категорії                    | Всі    |
+|                     | PUT   | `/api/categories/{id}/`              | Повне оновлення                       | Admin  |
+|                     | PATCH | `/api/categories/{id}/`              | Часткове оновлення                    | Admin  |
+|                     | DELETE| `/api/categories/{id}/`              | Видалення категорії                   | Admin  |
+| **Фотографії**      | GET   | `/api/photos/`                       | Список фото                           | Всі    |
+|                     | POST  | `/api/photos/`                       | Завантажити фото                      | Авторизовані |
+|                     | GET   | `/api/photos/{id}/`                  | Деталі фото                           | Всі    |
+|                     | PUT   | `/api/photos/{id}/`                  | Повне оновлення фото                  | Власник |
+|                     | PATCH | `/api/photos/{id}/`                  | Часткове оновлення фото               | Власник |
+|                     | DELETE| `/api/photos/{id}/`                  | Видалення фото                        | Власник |
+| **Лайки**           | POST  | `/api/photos/{photo_id}/like/`       | Додати або прибрати лайк              | Авторизовані |
+| **Коментарі**       | GET   | `/api/photos/{photo_id}/comments/`   | Список коментарів під фото            | Всі    |
+|                     | POST  | `/api/photos/{photo_id}/comments/`   | Додати коментар                       | Авторизовані |
+| **Адмін-статистика**| GET   | `/api/admin/stats/`                  | Статистика по користувачах і контенту | Admin/Staff |
